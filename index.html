@@ -51,6 +51,7 @@
 <!-- assassin-dash-gap-wavebreak-v1 -->
 <!-- sidebar-leaderboard-v1 -->
 <!-- ring-hpregen-rune-hammer-cost-v1 -->
+<!-- hp-stat-heal-gain-v1 -->
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#0a0814;color:#fff;font-family:'Malgun Gothic',sans-serif;overflow:hidden;user-select:none;touch-action:none}
@@ -2086,7 +2087,22 @@ function renderStat(){
   h+='<div style="text-align:center;margin-top:10px"><button class="ob" style="width:auto;padding:6px 20px" onclick="closeOv()">닫기</button></div>';
   document.getElementById('ovc').innerHTML=h;
 }
-function addSp(attr,val){if(P.sp<=0)return;P[attr]+=val;P.sp--;P.recalc();P.hp=Math.min(P.maxHp,P.hp);if(P.sp===0)closeOv();else renderStat();updateHUD();}
+function addSp(attr,val){
+  if(P.sp<=0)return;
+  const oldMaxHp=P.maxHp;
+  P[attr]+=val;
+  P.sp--;
+  P.recalc();
+  if(attr==='bhpB'){
+    const hpGain=Math.max(0,P.maxHp-oldMaxHp);
+    P.hp=Math.min(P.maxHp,P.hp+hpGain);
+    if(hpGain>0)popup(P.x,P.y-44,'HP +'+hpGain,'#3dc850');
+  }else{
+    P.hp=Math.min(P.maxHp,P.hp);
+  }
+  if(P.sp===0)closeOv();else renderStat();
+  updateHUD();
+}
 function closeOv(){OV_OPEN=false;document.getElementById('ov').classList.add('h');}
 
 // ── 온라인 랭킹 / 게임오버 ─────────────────────────────
