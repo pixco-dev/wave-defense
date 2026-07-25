@@ -50,7 +50,7 @@
 <!-- melee-gold-event-v1 -->
 <!-- assassin-dash-gap-wavebreak-v1 -->
 <!-- sidebar-leaderboard-v1 -->
-<!-- mana-ring-focus-v1 -->
+<!-- ring-hpregen-rune-hammer-cost-v1 -->
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#0a0814;color:#fff;font-family:'Malgun Gothic',sans-serif;overflow:hidden;user-select:none;touch-action:none}
@@ -306,9 +306,9 @@ const ITEMS = {
   '철 반지':     {slot:'ring',  mp:45, mpRegen:1.0, rarity:'일반'},
   '체력 반지':   {slot:'ring',  hp:30, mp:70, mpRegen:1.3, rarity:'희귀'},
   '마나 반지':   {slot:'ring',  mp:95, mpRegen:1.8, rarity:'희귀'},
-  '생명의 반지': {slot:'ring',  hp:55, mp:125, mpRegen:2.1, rarity:'전설'},
+  '생명의 반지': {slot:'ring',  hp:55, mp:125, mpRegen:2.1, hpRegen:1.2, rarity:'전설'},
   '힘의 반지':   {slot:'ring',  mp:85, mpRegen:1.7, atk:8, rarity:'전설'},
-  '불사의 반지': {slot:'ring',  hp:45, mp:100, mpRegen:1.9, def:6, rarity:'전설'},
+  '불사의 반지': {slot:'ring',  hp:45, mp:100, mpRegen:1.9, hpRegen:1.5, def:6, rarity:'전설'},
   // 공격속도 특화
   '단검 장갑':   {slot:'weapon',atk:5, atkspd:5, rarity:'희귀'},
   '폭풍 단검':   {slot:'weapon',atk:8, atkspd:8, rarity:'전설'},
@@ -570,12 +570,12 @@ const P={
   itemName(raw){const d=this.itemData(raw);return d?d.name||raw:String(raw);},
 
   recalc(){
-    let eAtk=0,eDef=0,eSpd=0,eHp=0,eMp=0,eAspd=0,eCrit=0,eMpRegen=0;
+    let eAtk=0,eDef=0,eSpd=0,eHp=0,eMp=0,eAspd=0,eCrit=0,eMpRegen=0,eHpRegen=0;
     for(const raw of Object.values(this.eq)){
       if(!raw) continue;
       const d=this.itemData(raw);
       if(!d) continue;
-      eAtk+=d.atk||0;eDef+=d.def||0;eSpd+=d.spd||0;eHp+=d.hp||0;eMp+=d.mp||0;eAspd+=d.atkspd||0;eCrit+=d.crit||0;eMpRegen+=d.mpRegen||0;
+      eAtk+=d.atk||0;eDef+=d.def||0;eSpd+=d.spd||0;eHp+=d.hp||0;eMp+=d.mp||0;eAspd+=d.atkspd||0;eCrit+=d.crit||0;eMpRegen+=d.mpRegen||0;eHpRegen+=d.hpRegen||0;
     }
     const lv=this.lv-1;
     this.maxHp=this.bhp+eHp+this.bhpB+lv*10;
@@ -593,6 +593,8 @@ const P={
     this.critRate=5+(this.critB||0)+eCrit;  // 기본5% + 스탯 + 장비
     // MP 회복량: 기본 초당 3 + 반지/장비의 mpRegen
     this.mpRegen=3+eMpRegen;
+    // HP 자동회복: 생명의 반지/불사의 반지 등에서 얻는 초당 회복량
+    this.hpRegen=eHpRegen;
     if(this.hp===undefined){this.hp=this.maxHp;this.mp=this.maxMp;}
   },
 
@@ -1420,7 +1422,7 @@ function iName(raw){
   return String(raw);
 }
 function iCol(raw){const d=iData(raw);if(!d)return'#4af0f0';if(d.rarity==='고대')return'#ff8c00';if(d.rarity==='초월')return'#ff3030';if(d.rarity==='신성')return'#e8d0ff';return RC[d.rarity||'희귀']||'#4af0f0';}
-function iStats(raw){const d=iData(raw);if(!d)return'';const st=[];if(d.atk)st.push('ATK+'+d.atk);if(d.def)st.push('DEF+'+d.def);if(d.hp)st.push('HP+'+d.hp);if(d.spd)st.push('SPD+'+Math.round(d.spd*10)/10);if(d.mp)st.push('MP+'+d.mp);if(d.mpRegen)st.push('MP회복+'+Math.round(d.mpRegen*10)/10+'/초');if(d.atkspd)st.push('공속+'+d.atkspd);if(d.crit)st.push('치명+'+d.crit+'%');if(d.melee){const ms=getMeleeStats(d);st.push('근접 사거리 '+ms.range);if(ms.tier>=2)st.push(ms.label+' 효과');}if(d.lifesteal)st.push('흡혈 '+Math.round(d.lifesteal*100)+'%');if(d.rage)st.push('HP50%이하 ATK*2');return st.join(' ');}
+function iStats(raw){const d=iData(raw);if(!d)return'';const st=[];if(d.atk)st.push('ATK+'+d.atk);if(d.def)st.push('DEF+'+d.def);if(d.hp)st.push('HP+'+d.hp);if(d.spd)st.push('SPD+'+Math.round(d.spd*10)/10);if(d.mp)st.push('MP+'+d.mp);if(d.mpRegen)st.push('MP회복+'+Math.round(d.mpRegen*10)/10+'/초');if(d.hpRegen)st.push('HP회복+'+Math.round(d.hpRegen*10)/10+'/초');if(d.atkspd)st.push('공속+'+d.atkspd);if(d.crit)st.push('치명+'+d.crit+'%');if(d.melee){const ms=getMeleeStats(d);st.push('근접 사거리 '+ms.range);if(ms.tier>=2)st.push(ms.label+' 효과');}if(d.lifesteal)st.push('흡혈 '+Math.round(d.lifesteal*100)+'%');if(d.rage)st.push('HP50%이하 ATK*2');return st.join(' ');}
 function sellPrice(raw){const d=iData(raw);if(!d)return 5;const base=d.rarity==='고대'?1200:d.rarity==='초월'?600:d.rarity==='신성'?450:d.rarity==='전설'?180:d.rarity==='희귀'?70:d.rarity==='합성'?300:25;return Math.floor(base*0.5);}
 
 // ── 상점 ───────────────────────────────────────────────
@@ -1438,8 +1440,8 @@ function genShop(){
     {type:'item',name:sh[2],price:priceOf(sh[2])},
     {type:'hp',name:'HP 포션',price:25,desc:'HP 50 회복'},
     {type:'mp',name:'MP 포션',price:20,desc:'MP 30 회복'},
-    {type:'rune',name:'보호의 룬',price:300,desc:'강화 실패 시 단계 하락 방지 1회'},
-    {type:'hammer',name:'황금 망치',price:500,desc:'다음 강화 성공률 +20%'},
+    {type:'rune',name:'보호의 룬',price:180,desc:'강화 실패 시 단계 하락 방지 1회'},
+    {type:'hammer',name:'황금 망치',price:280,desc:'다음 강화 성공률 +20%'},
   ];
 }
 function refreshShop(){
@@ -1454,8 +1456,8 @@ function refreshShop(){
     {type:'item',name:sh2[2],price:po(sh2[2])},
     {type:'hp',name:'HP 포션',price:25,desc:'HP 50 회복'},
     {type:'mp',name:'MP 포션',price:20,desc:'MP 30 회복'},
-    {type:'rune',name:'보호의 룬',price:300,desc:'강화 실패 시 단계 하락 방지 1회'},
-    {type:'hammer',name:'황금 망치',price:500,desc:'다음 강화 성공률 +20%'},
+    {type:'rune',name:'보호의 룬',price:180,desc:'강화 실패 시 단계 하락 방지 1회'},
+    {type:'hammer',name:'황금 망치',price:280,desc:'다음 강화 성공률 +20%'},
   ];
   renderShop();updateHUD();
 }
@@ -1618,7 +1620,7 @@ function craftPreview(a,b){
   }
 
   const merged={slot:a.slot,rarity:newR,isCrafted:true};
-  const keys=['atk','def','hp','mp','mpRegen','spd','atkspd','crit'];
+  const keys=['atk','def','hp','mp','mpRegen','hpRegen','spd','atkspd','crit'];
   const avgOrigin=(originScore(a)+originScore(b))/2;
   merged.originScore=avgOrigin;
   merged.craftDepth=Math.max(a.craftDepth||0,b.craftDepth||0)+1;
@@ -1637,8 +1639,8 @@ function craftPreview(a,b){
       const hv=high[key]||0;
       const lv=low[key]||0;
       if(hv>0||lv>0){
-        const add=(key==='spd'||key==='mpRegen')?Math.round(lv*absorb*10)/10:Math.ceil(lv*absorb);
-        merged[key]=(key==='spd'||key==='mpRegen')?Math.round((hv+add)*10)/10:hv+add;
+        const add=(key==='spd'||key==='mpRegen'||key==='hpRegen')?Math.round(lv*absorb*10)/10:Math.ceil(lv*absorb);
+        merged[key]=(key==='spd'||key==='mpRegen'||key==='hpRegen')?Math.round((hv+add)*10)/10:hv+add;
       }
     }
   } else {
@@ -1660,7 +1662,7 @@ function craftPreview(a,b){
         if(newR==='초월')mult=1.00;
         if(newR==='고대')mult=1.08;
         const finalMult=mult*lowBasePenalty;
-        merged[key]=(key==='spd'||key==='mpRegen')?Math.round(v*finalMult*10)/10:Math.max(1,Math.ceil(v*finalMult));
+        merged[key]=(key==='spd'||key==='mpRegen'||key==='hpRegen')?Math.round(v*finalMult*10)/10:Math.max(1,Math.ceil(v*finalMult));
       }
     }
   }
@@ -1703,7 +1705,7 @@ function craftPreview(a,b){
 }
 function craftPowerForCost(d){
   if(!d)return 0;
-  return (d.atk||0)*12+(d.def||0)*10+(d.hp||0)*0.7+(d.mp||0)*0.55+(d.mpRegen||0)*120+(d.spd||0)*35+(d.atkspd||0)*50+(d.crit||0)*35;
+  return (d.atk||0)*12+(d.def||0)*10+(d.hp||0)*0.7+(d.mp||0)*0.55+(d.mpRegen||0)*120+(d.hpRegen||0)*110+(d.spd||0)*35+(d.atkspd||0)*50+(d.crit||0)*35;
 }
 function craftCost(a,b){
   const res=craftPreview(a,b);
@@ -1769,6 +1771,7 @@ function enhanceItem(raw){
     if(d.spd)  newItem.spd  =Math.round((d.baseSpd ||d.spd) *boost*10)/10;
     if(d.mp)   newItem.mp   =Math.ceil((d.baseMp  ||d.mp)  *boost);
     if(d.mpRegen) newItem.mpRegen=Math.round((d.baseMpRegen||d.mpRegen)*(1+newItem.enhLv*0.10)*10)/10;
+    if(d.hpRegen) newItem.hpRegen=Math.round((d.baseHpRegen||d.hpRegen)*(1+newItem.enhLv*0.10)*10)/10;
     if(d.atkspd) newItem.atkspd=Math.ceil((d.baseAtkspd||d.atkspd)*boost);
     if(d.crit) newItem.crit =Math.ceil((d.baseCrit||d.crit)*boost);
     if(d.range) newItem.range=Math.ceil((d.baseRange||d.range)*(1+newItem.enhLv*0.04));
@@ -1780,6 +1783,7 @@ function enhanceItem(raw){
     if(!d.baseSpd && d.spd) newItem.baseSpd=d.spd;
     if(!d.baseMp  && d.mp)  newItem.baseMp =d.mp;
     if(!d.baseMpRegen && d.mpRegen) newItem.baseMpRegen=d.mpRegen;
+    if(!d.baseHpRegen && d.hpRegen) newItem.baseHpRegen=d.hpRegen;
     if(!d.baseAtkspd && d.atkspd) newItem.baseAtkspd=d.atkspd;
     if(!d.baseCrit && d.crit) newItem.baseCrit=d.crit;
     if(!d.baseRange && d.range) newItem.baseRange=d.range;
@@ -1794,6 +1798,7 @@ function enhanceItem(raw){
       if(newItem.hp)   newItem.hp   =Math.ceil(newItem.hp   *2.5);
       if(newItem.mp)   newItem.mp   =Math.ceil(newItem.mp   *2.2);
       if(newItem.mpRegen) newItem.mpRegen=Math.round(newItem.mpRegen*1.8*10)/10;
+      if(newItem.hpRegen) newItem.hpRegen=Math.round(newItem.hpRegen*1.8*10)/10;
       if(newItem.crit) newItem.crit =Math.ceil(newItem.crit *2.5);
       if(newItem.spd)  newItem.spd  =Math.round(newItem.spd *2.0*10)/10;
       if(newItem.range) newItem.range=Math.ceil(newItem.range*1.20);
@@ -1818,6 +1823,7 @@ function enhanceItem(raw){
       if(d.baseSpd) newItem.spd=d.baseSpd;
       if(d.baseMp)  newItem.mp =d.baseMp;
       if(d.baseMpRegen) newItem.mpRegen=d.baseMpRegen;
+      if(d.baseHpRegen) newItem.hpRegen=d.baseHpRegen;
       if(d.baseRange) newItem.range=d.baseRange;
       if(d.baseArc) newItem.arc=d.baseArc;
     } else {
@@ -1828,6 +1834,7 @@ function enhanceItem(raw){
       if(d.baseSpd) newItem.spd=Math.round(d.baseSpd*boost2*10)/10;
       if(d.baseMp)  newItem.mp =Math.ceil(d.baseMp *boost2);
       if(d.baseMpRegen) newItem.mpRegen=Math.round(d.baseMpRegen*(1+newLv*0.10)*10)/10;
+      if(d.baseHpRegen) newItem.hpRegen=Math.round(d.baseHpRegen*(1+newLv*0.10)*10)/10;
       if(d.baseRange) newItem.range=Math.ceil(d.baseRange*(1+newLv*0.04));
       if(d.baseArc) newItem.arc=Math.min(2.85,Math.round((d.baseArc+newLv*0.012)*100)/100);
     }
@@ -2494,7 +2501,7 @@ function updateHUD(){
     document.getElementById('xpb').style.width=(P.xp/P.xpN*100)+'%';
     document.getElementById('stl').innerHTML=[
       ['공격력',P.atk,'#ff8c00'],['방어력',P.def,'#4af0f0'],
-      ['이동속도',P.spd.toFixed(1),'#3dc850'],['MP회복',Math.round((P.mpRegen||3)*10)/10+'/초','#3c78ff'],['골드',P.gold+'G','#ffc828'],['처치',P.kills,'#aaa'],['치명타',(P.critRate||5)+(P.critRate>100?' (+'+(P.critRate-100)+'% → ATK배율)':'')+'%','#ff6060'],['공속',P.asp+'f','#4af0f0']
+      ['이동속도',P.spd.toFixed(1),'#3dc850'],['MP회복',Math.round((P.mpRegen||3)*10)/10+'/초','#3c78ff'],['HP회복',Math.round((P.hpRegen||0)*10)/10+'/초','#3dc850'],['골드',P.gold+'G','#ffc828'],['처치',P.kills,'#aaa'],['치명타',(P.critRate||5)+(P.critRate>100?' (+'+(P.critRate-100)+'% → ATK배율)':'')+'%','#ff6060'],['공속',P.asp+'f','#4af0f0']
     ].map(function(v){return'<div class="sr"><span style="color:#666">'+v[0]+'</span><span style="color:'+v[2]+'">'+v[1]+'</span></div>';}).join('');
     const sl2={weapon:'무기',armor:'갑옷',boots:'부츠',ring:'반지'};
     document.getElementById('eql').innerHTML=Object.entries(sl2).map(function(entry){
@@ -2596,6 +2603,7 @@ function loop(ts){
   if(P.zapTimer>0)P.zapTimer=Math.max(0,P.zapTimer-raw);
   if(P.berT>0)P.berT=Math.max(0,P.berT-raw);
   P.mp=Math.min(P.maxMp,P.mp+((P.mpRegen||3)/60)*dt);
+  if(P.hpRegen>0)P.hp=Math.min(P.maxHp,P.hp+(P.hpRegen/60)*dt);
   P.ifr=Math.max(0,P.ifr-dt);
 
   waveTick(dt);
