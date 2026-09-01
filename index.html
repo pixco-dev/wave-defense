@@ -5,43 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#0a0814">
 <title>Wave Defense RPG</title>
-<style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0a0814}
-#game{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0a0814}
-</style>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0a0814}iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0a0814}</style>
 </head>
 <body>
-<iframe id="game" src="./single.html?v=coop3" allow="fullscreen; autoplay"></iframe>
-<script>
-const COOP_URL='./coop.html?server='+encodeURIComponent('wss://pixco-wave-defense-coop.onrender.com');
-const frame=document.getElementById('game');
-function injectCoopButton(){
-  try{
-    const d=frame.contentDocument;
-    if(!d)return;
-    const sbtn=d.getElementById('sbtn');
-    const hbtn=d.getElementById('hbtn');
-    if(!sbtn||!hbtn)return;
-    if(d.getElementById('coopbtn'))return;
-    const row=sbtn.parentElement;
-    row.style.maxWidth='720px';
-    const b=d.createElement('button');
-    b.id='coopbtn';
-    b.type='button';
-    b.innerHTML='🤝 협동 모드';
-    b.style.cssText='background:linear-gradient(135deg,#125d72,#082632);border:2px solid #4af0ff;border-radius:14px;padding:16px 34px;font-size:19px;font-weight:bold;color:#9af8ff;cursor:pointer;font-family:inherit;box-shadow:0 0 40px #4af0ff55;transition:transform .1s,box-shadow .1s';
-    b.onmouseenter=()=>b.style.transform='scale(1.05)';
-    b.onmouseleave=()=>b.style.transform='scale(1)';
-    b.onclick=()=>{window.location.href=COOP_URL};
-    row.appendChild(b);
-    const note=d.createElement('div');
-    note.id='coop-note';
-    note.textContent='협동 모드: 2~4인 실시간 플레이 · 인원수에 따라 난이도 자동 보정 · 멀티 랭킹 분리';
-    note.style.cssText='margin-top:7px;font-size:11px;color:#4af0ff';
-    row.parentElement.insertBefore(note,row.nextSibling);
-  }catch(e){console.error('coop button inject failed',e)}
-}
-frame.addEventListener('load',()=>{injectCoopButton();setTimeout(injectCoopButton,300)});
-</script>
+<iframe src="./single.html?v=original-restored" allow="fullscreen; autoplay"></iframe>
 </body>
 </html>
