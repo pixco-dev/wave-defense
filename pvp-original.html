@@ -11,7 +11,7 @@
 </head>
 <body>
 <script src="./multiplayer-prewarm.js?v=1"></script>
-<iframe id="game" src="./single.html?v=pvp-p2p-4" allow="fullscreen; autoplay"></iframe>
+<iframe id="game" src="./single.html?v=pvp-p2p-5" allow="fullscreen; autoplay"></iframe>
 <script>
 window.__warmMultiplayerServer?.(true);
 const f=document.getElementById('game');
@@ -27,7 +27,7 @@ f.addEventListener('load',()=>{
       if(d.getElementById('pvpOriginalBridge'))return;
       const s=d.createElement('script');
       s.id='pvpOriginalBridge';
-      s.src='./pvp-original-bridge.js?v=p2p-4';
+      s.src='./pvp-original-bridge.js?v=p2p-5';
       d.body.appendChild(s);
     };
     d.body.appendChild(g);
