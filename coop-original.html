@@ -5,11 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#0a0814">
 <title>Wave Defense RPG · 협동</title>
+<link rel="preconnect" href="https://pixco-wave-defense-coop.onrender.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
 <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0a0814}iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0a0814}</style>
 </head>
 <body>
-<iframe id="game" src="./single.html?v=coop-original-2" allow="fullscreen; autoplay"></iframe>
+<script src="./multiplayer-prewarm.js?v=1"></script>
+<iframe id="game" src="./single.html?v=coop-original-3" allow="fullscreen; autoplay"></iframe>
 <script>
+window.__warmMultiplayerServer?.(true);
 const f=document.getElementById('game');
 f.addEventListener('load',()=>{
   try{
@@ -18,12 +22,12 @@ f.addEventListener('load',()=>{
     f.contentWindow.__MULTI_MODE='coop';
     const g=d.createElement('script');
     g.id='multiGuardLoader';
-    g.src='./multiplayer-ui-guard.js?v=3';
+    g.src='./multiplayer-ui-guard.js?v=4';
     g.onload=()=>{
       if(d.getElementById('coopOriginalBridge'))return;
       const s=d.createElement('script');
       s.id='coopOriginalBridge';
-      s.src='./coop-original-bridge.js?v=2';
+      s.src='./coop-original-bridge.js?v=3';
       d.body.appendChild(s);
     };
     d.body.appendChild(g);
