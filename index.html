@@ -8,13 +8,40 @@
 <style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0a0814}
 #game{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0a0814}
-#coopBtn{position:fixed;z-index:9999;right:14px;top:14px;border:2px solid #4af0ff;background:linear-gradient(135deg,#124a67,#081d2b);color:#9af8ff;border-radius:12px;padding:10px 15px;font:800 14px 'Malgun Gothic',sans-serif;cursor:pointer;box-shadow:0 0 20px #4af0ff55}
-#coopBtn:hover{filter:brightness(1.15)}
-@media(max-width:700px){#coopBtn{right:8px;top:8px;padding:8px 11px;font-size:12px}}
 </style>
 </head>
 <body>
-<iframe id="game" src="./single.html" allow="fullscreen; autoplay"></iframe>
-<button id="coopBtn" onclick="location.href='./coop.html?server='+encodeURIComponent('wss://pixco-wave-defense-coop.onrender.com')">🤝 협동 모드</button>
+<iframe id="game" src="./single.html?v=coop3" allow="fullscreen; autoplay"></iframe>
+<script>
+const COOP_URL='./coop.html?server='+encodeURIComponent('wss://pixco-wave-defense-coop.onrender.com');
+const frame=document.getElementById('game');
+function injectCoopButton(){
+  try{
+    const d=frame.contentDocument;
+    if(!d)return;
+    const sbtn=d.getElementById('sbtn');
+    const hbtn=d.getElementById('hbtn');
+    if(!sbtn||!hbtn)return;
+    if(d.getElementById('coopbtn'))return;
+    const row=sbtn.parentElement;
+    row.style.maxWidth='720px';
+    const b=d.createElement('button');
+    b.id='coopbtn';
+    b.type='button';
+    b.innerHTML='🤝 협동 모드';
+    b.style.cssText='background:linear-gradient(135deg,#125d72,#082632);border:2px solid #4af0ff;border-radius:14px;padding:16px 34px;font-size:19px;font-weight:bold;color:#9af8ff;cursor:pointer;font-family:inherit;box-shadow:0 0 40px #4af0ff55;transition:transform .1s,box-shadow .1s';
+    b.onmouseenter=()=>b.style.transform='scale(1.05)';
+    b.onmouseleave=()=>b.style.transform='scale(1)';
+    b.onclick=()=>{window.location.href=COOP_URL};
+    row.appendChild(b);
+    const note=d.createElement('div');
+    note.id='coop-note';
+    note.textContent='협동 모드: 2~4인 실시간 플레이 · 인원수에 따라 난이도 자동 보정 · 멀티 랭킹 분리';
+    note.style.cssText='margin-top:7px;font-size:11px;color:#4af0ff';
+    row.parentElement.insertBefore(note,row.nextSibling);
+  }catch(e){console.error('coop button inject failed',e)}
+}
+frame.addEventListener('load',()=>{injectCoopButton();setTimeout(injectCoopButton,300)});
+</script>
 </body>
 </html>
