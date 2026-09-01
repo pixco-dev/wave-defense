@@ -1,0 +1,1 @@
+{"name":"wave-defense-multiplayer-server","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node src/app.config.js"},"dependencies":{"colyseus":"^0.17.10","@colyseus/schema":"^4.0.8","@colyseus/ws-transport":"^0.17.13"},"engines":{"node":">=20"}}
