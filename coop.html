@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Wave Defense RPG · 협동</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07090f;color:#e9f4ff;font-family:'Malgun Gothic',system-ui,sans-serif}button,input,select{font:inherit}
+    canvas{display:block;width:100vw;height:100vh;touch-action:none}
+    #ui{position:fixed;inset:0;pointer-events:none}
+    .panel{pointer-events:auto;background:rgba(10,15,26,.90);border:1px solid rgba(100,220,255,.28);border-radius:12px;padding:10px;backdrop-filter:blur(8px);box-shadow:0 8px 30px #0007}
+    #connect{position:absolute;left:12px;top:12px;width:min(430px,calc(100vw - 24px))}
+    #hud{position:absolute;right:12px;top:12px;width:300px;display:none}
+    #shop{position:absolute;right:12px;bottom:12px;width:390px;max-height:48vh;overflow:auto;display:none}
+    #ranking{position:absolute;left:12px;bottom:12px;width:420px;max-height:43vh;overflow:auto}
+    .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.grow{flex:1}.tiny{font-size:11px;color:#93a6ba}.muted{color:#7f8c9f}.good{color:#4af0b0}.gold{color:#ffc828}.bad{color:#ff6262}
+    input,select,button{background:#121a27;color:#e9f4ff;border:1px solid #38536b;border-radius:8px;padding:7px 9px}button{cursor:pointer;font-weight:700}button.primary{border-color:#4af0ff;color:#4af0ff}button.gold{border-color:#ffc828;color:#ffc828}button:disabled{opacity:.45;cursor:not-allowed}
+    .bar{height:7px;background:#1a2330;border-radius:4px;overflow:hidden;margin:2px 0 5px}.fill{height:100%}.section{border-top:1px solid #253142;margin-top:8px;padding-top:7px}.skill-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.skill-slot{padding:7px 4px;text-align:center;border-radius:8px;background:#101827;border:1px solid #314158}.skill-key{font-size:10px;color:#8999ad}.skill-name{font-size:11px;font-weight:700;margin-top:2px;word-break:keep-all}
+    .shop-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px 0;border-bottom:1px solid #202b39}.rank-row{display:grid;grid-template-columns:36px 1fr 66px 56px;gap:6px;padding:4px 0;border-bottom:1px solid #202b39;font-size:12px}.rank-head{color:#7f8c9f;font-size:10px}.log{font-size:11px;color:#b7c7d8;max-height:84px;overflow:auto;white-space:pre-wrap;margin-top:5px}.overlay{display:none;position:absolute;inset:0;background:#000b;pointer-events:auto;align-items:center;justify-content:center}.card{width:min(520px,92vw);background:#111827;border:1px solid #394a61;border-radius:14px;padding:18px;text-align:center}.big{font-size:34px;font-weight:900;color:#ff6262}.score{font-size:23px;color:#ffc828;font-weight:800;margin:8px}
+    @media(max-width:800px){#hud{width:240px}.panel{font-size:12px}#shop{width:min(360px,calc(100vw - 24px))}#ranking{display:none}}
+  </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="ui">
+  <div id="connect" class="panel">
+    <div style="font-size:17px;font-weight:900;color:#ffc828">WAVE DEFENSE · 협동</div>
+    <div class="row" style="margin-top:8px">
+      <input id="serverUrl" class="grow" placeholder="Colyseus 서버 주소 (예: ws://localhost:2567)" />
+      <input id="playerName" value="Player" maxlength="12" style="width:92px" />
+      <select id="partySize"><option value="2">2인</option><option value="3">3인</option><option value="4">4인</option></select>
+      <button id="joinBtn" class="primary">입장</button>
+      <button id="readyBtn" class="gold" disabled>시작</button>
+    </div>
+    <div class="tiny" style="margin-top:6px">방향키 이동 · 마우스 조준/클릭 평타 · Q/W/E/R 스킬 · 웨이브 사이에 스킬 구매/교체</div>
+    <div id="status" class="tiny" style="margin-top:5px">서버에 연결하지 않았습니다.</div>
+    <div id="log" class="log"></div>
+  </div>
+
+  <div id="hud" class="panel">
+    <div class="row"><b id="meName">Player</b><span id="level" class="gold">Lv.1</span><span id="gold" style="margin-left:auto" class="gold">0G</span></div>
+    <div id="hpText" class="tiny">HP</div><div class="bar"><div id="hpBar" class="fill" style="background:#45d56a;width:100%"></div></div>
+    <div id="mpText" class="tiny">MP</div><div class="bar"><div id="mpBar" class="fill" style="background:#4a90ff;width:100%"></div></div>
+    <div id="xpText" class="tiny">XP</div><div class="bar"><div id="xpBar" class="fill" style="background:#ffc828;width:0%"></div></div>
+    <div id="waveText" style="font-weight:800;margin-top:5px">Wave 1</div>
+    <div id="diffText" class="tiny"></div>
+    <div class="section"><div class="tiny">장착 스킬</div><div id="skillSlots" class="skill-grid"></div></div>
+    <div class="section"><div class="tiny">스킬 교체 (대기/웨이브 사이만 가능)</div><div id="skillEquip"></div></div>
+  </div>
+
+  <div id="shop" class="panel">
+    <div class="row"><b class="gold">스킬 상점</b><span id="shopPhase" class="tiny" style="margin-left:auto"></span></div>
+    <div id="shopList" class="tiny"></div>
+  </div>
+
+  <div id="ranking" class="panel">
+    <div class="row"><b class="gold">🏆 협동 랭킹</b><select id="rankParty"><option value="2">2인</option><option value="3">3인</option><option value="4">4인</option></select><button id="rankRefresh">새로고침</button></div>
+    <div class="tiny" style="margin-top:4px">인원별 별도 랭킹 · 최고 클리어 웨이브 우선</div>
+    <div id="rankList" style="margin-top:5px"><span class="muted">불러오는 중...</span></div>
+  </div>
+
+  <div id="gameover" class="overlay"><div class="card">
+    <div class="big">GAME OVER</div><div id="goScore" class="score"></div><div id="goDetail"></div>
+    <div id="goRankStatus" class="tiny" style="margin:10px 0"></div>
+    <button id="submitRankBtn" class="gold">협동 랭킹 등록</button>
+    <button onclick="location.reload()" style="margin-left:6px">다시 시작</button>
+  </div></div>
+</div>
+<script src="https://unpkg.com/@colyseus/sdk@^0.17.0/dist/colyseus.js"></script>
+<script src="./original-multiplayer.js"></script>
+</body>
+</html>
