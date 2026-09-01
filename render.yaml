@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: pixco-wave-defense-coop
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: multiplayer-server
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
