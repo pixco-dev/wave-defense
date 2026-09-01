@@ -5,12 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#0a0814">
 <title>Wave Defense RPG</title>
+<link rel="preconnect" href="https://pixco-wave-defense-coop.onrender.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
 <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0a0814}iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0a0814}</style>
 </head>
 <body>
-<iframe id="game" src="./single.html?v=original-modes-2" allow="fullscreen; autoplay"></iframe>
+<script src="./multiplayer-prewarm.js?v=1"></script>
+<iframe id="game" src="./single.html?v=original-modes-3" allow="fullscreen; autoplay"></iframe>
 <script>
 const f=document.getElementById('game');
+function warm(){try{window.__warmMultiplayerServer?.(true)}catch(_){}}
 function inject(){
   try{
     const d=f.contentDocument;if(!d)return;
@@ -19,17 +23,18 @@ function inject(){
     if(!d.getElementById('coopbtn')){
       const b=d.createElement('button');b.id='coopbtn';b.type='button';b.textContent='🤝 협동 모드';
       b.style.cssText='background:linear-gradient(135deg,#125d72,#082632);border:2px solid #4af0ff;border-radius:14px;padding:16px 32px;font-size:19px;font-weight:bold;color:#9af8ff;cursor:pointer;font-family:inherit;box-shadow:0 0 40px #4af0ff55;transition:transform .1s';
-      b.onmouseenter=()=>b.style.transform='scale(1.05)';b.onmouseleave=()=>b.style.transform='scale(1)';b.onclick=()=>location.href='./coop-original.html';row.appendChild(b);
+      b.onmouseenter=()=>{b.style.transform='scale(1.05)';warm()};b.onmouseleave=()=>b.style.transform='scale(1)';b.onpointerdown=warm;b.onclick=()=>location.href='./coop-original.html';row.appendChild(b);
     }
     if(!d.getElementById('pvpbtn')){
       const b=d.createElement('button');b.id='pvpbtn';b.type='button';b.textContent='⚔ PVP';
       b.style.cssText='background:linear-gradient(135deg,#7a2020,#321010);border:2px solid #ff7070;border-radius:14px;padding:16px 32px;font-size:19px;font-weight:bold;color:#ffaaaa;cursor:pointer;font-family:inherit;box-shadow:0 0 40px #ff505055;transition:transform .1s';
-      b.onmouseenter=()=>b.style.transform='scale(1.05)';b.onmouseleave=()=>b.style.transform='scale(1)';b.onclick=()=>location.href='./pvp-original.html';row.appendChild(b);
+      b.onmouseenter=()=>{b.style.transform='scale(1.05)';warm()};b.onmouseleave=()=>b.style.transform='scale(1)';b.onpointerdown=warm;b.onclick=()=>location.href='./pvp-original.html';row.appendChild(b);
     }
-    if(!d.getElementById('multinote')){const n=d.createElement('div');n.id='multinote';n.textContent='🤝 협동: 원본 2~4인 실시간 플레이   ·   ⚔ PVP: 서버 판정 1vs1 · 3판 2선승';n.style.cssText='margin-top:7px;font-size:11px;color:#9aa8b8';row.parentElement.insertBefore(n,row.nextSibling);}
+    if(!d.getElementById('multinote')){const n=d.createElement('div');n.id='multinote';n.textContent='🤝 협동: 원본 2~4인 실시간 플레이   ·   ⚔ PVP: P2P 1vs1';n.style.cssText='margin-top:7px;font-size:11px;color:#9aa8b8';row.parentElement.insertBefore(n,row.nextSibling);}
   }catch(e){console.error(e)}
 }
 f.addEventListener('load',()=>{inject();setTimeout(inject,300)});
+warm();
 </script>
 </body>
 </html>
